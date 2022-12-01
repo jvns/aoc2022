@@ -4,7 +4,6 @@ fn sums() -> Vec<i32> {
     let mut input = String::new();
     std::io::stdin().read_to_string(&mut input).unwrap();
 
-    // split by \n\n
     let parts = input.split("\n\n");
 
     let sums: Vec<i32> = parts.map(|part| {
@@ -19,9 +18,7 @@ fn sums() -> Vec<i32> {
 }
 
 fn part1() {
-    // get max sum
-    let sums = sums();
-    let max = sums.iter().max().unwrap();
+    let max: i32 = *sums().iter().max().unwrap();
     println!("{}", max);
 }
 
@@ -29,10 +26,7 @@ fn part2() {
     let mut sums = sums();
     // sort sums in reverse
     sums.sort_by(|a, b| b.cmp(a));
-    // get top 3 sums
-    let top3 = sums.iter().take(3);
-    // add them up
-    let sum = top3.fold(0, |acc, &x| acc + x);
+    let sum = sums[0] + sums[1] + sums[2];
     println!("{}", sum);
 }
 
