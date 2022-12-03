@@ -20,20 +20,36 @@ fn part1() {
     let mut input = String::new();
     std::io::stdin().read_to_string(&mut input).unwrap();
 
-    // read lines
     let sum = input
         .lines()
         .map(|line| {
             let nums: Vec<u32> = line.chars().map(char_to_num).collect();
             let dups = get_duplicates(&nums[0..nums.len() / 2], &nums[nums.len() / 2..]);
-            println!("{:?}", dups);
             dups.iter().sum::<u32>()
         })
         .sum::<u32>();
     println!("{}", sum);
 }
 
-fn part2() {}
+fn part2() {
+    let mut input = String::new();
+    std::io::stdin().read_to_string(&mut input).unwrap();
+
+    let sum = input
+        .lines()
+        .collect::<Vec<&str>>()
+        .chunks(3)
+        .map(|group| {
+            let nums1: Vec<u32> = group[0].chars().map(char_to_num).collect();
+            let nums2: Vec<u32> = group[1].chars().map(char_to_num).collect();
+            let nums3: Vec<u32> = group[2].chars().map(char_to_num).collect();
+            let dups = get_duplicates(&nums1, &nums2);
+            let dups = get_duplicates(&dups, &nums3);
+            dups.iter().sum::<u32>()
+        })
+        .sum::<u32>();
+    println!("{}", sum);
+}
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
