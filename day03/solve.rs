@@ -26,6 +26,17 @@ fn get_duplicates3(first: &[u8], second: &[u8], third: &[u8]) -> u32 {
     panic!("No duplicates found");
 }
 
+fn get_duplicates3_set(first: &[u8], second: &[u8], third: &[u8]) -> u32 {
+    let second_set: std::collections::HashSet<_> = second.iter().collect();
+    let third_set: std::collections::HashSet<_> = third.iter().collect();
+    for i in 0..first.len() {
+        if second_set.contains(&first[i]) && third_set.contains(&first[i]) {
+            return char_to_num(first[i] as char);
+        }
+    }
+    panic!("No duplicates found");
+}
+
 fn part1() {
     let mut input = String::new();
     std::io::stdin().read_to_string(&mut input).unwrap();
@@ -46,20 +57,20 @@ fn part2() {
     let mut input = String::new();
     std::io::stdin().read_to_string(&mut input).unwrap();
 
-    let mut lines = input.lines();
-    let mut sum = 0;
+    for i in 0..10000 {
+        let mut lines = input.lines();
+        let mut sum = 0;
 
-    loop {
-        let (first, second, third) = match (lines.next(), lines.next(), lines.next()) {
-            (Some(first), Some(second), Some(third)) => {
-                (first.as_bytes(), second.as_bytes(), third.as_bytes())
-            }
-            _ => break,
-        };
-        sum += get_duplicates3(first, second, third);
+        loop {
+            let (first, second, third) = match (lines.next(), lines.next(), lines.next()) {
+                (Some(first), Some(second), Some(third)) => {
+                    (first.as_bytes(), second.as_bytes(), third.as_bytes())
+                }
+                _ => break,
+            };
+            sum += get_duplicates3_set(first, second, third);
+        }
     }
-
-    println!("{}", sum);
 }
 
 fn main() {
