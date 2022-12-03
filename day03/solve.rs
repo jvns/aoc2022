@@ -57,7 +57,9 @@ fn part2() {
     let mut input = String::new();
     std::io::stdin().read_to_string(&mut input).unwrap();
 
-    for i in 0..10000 {
+    /* time _set version */
+    let time = std::time::Instant::now();
+    for i in 0..1000 {
         let mut lines = input.lines();
         let mut sum = 0;
 
@@ -71,6 +73,25 @@ fn part2() {
             sum += get_duplicates3_set(first, second, third);
         }
     }
+    println!("Time: {}ms", time.elapsed().as_millis());
+
+    /* time O(n^2) version */
+    let time2 = std::time::Instant::now();
+    for i in 0..1000 {
+        let mut lines = input.lines();
+        let mut sum = 0;
+
+        loop {
+            let (first, second, third) = match (lines.next(), lines.next(), lines.next()) {
+                (Some(first), Some(second), Some(third)) => {
+                    (first.as_bytes(), second.as_bytes(), third.as_bytes())
+                }
+                _ => break,
+            };
+            sum += get_duplicates3(first, second, third);
+        }
+    }
+    println!("Time: {}ms", time2.elapsed().as_millis());
 }
 
 fn main() {
