@@ -73,7 +73,7 @@ fn part2() {
             sum += get_duplicates3_set(first, second, third);
         }
     }
-    println!("Time: {}ms", time.elapsed().as_millis());
+    println!("Set version: {}ms", time.elapsed().as_millis());
 
     /* time O(n^2) version */
     let time2 = std::time::Instant::now();
@@ -91,7 +91,7 @@ fn part2() {
             sum += get_duplicates3(first, second, third);
         }
     }
-    println!("Time: {}ms", time2.elapsed().as_millis());
+    println!("O(n^2) version: {}ms", time2.elapsed().as_millis());
 }
 
 fn main() {
