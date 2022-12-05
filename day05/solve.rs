@@ -54,6 +54,12 @@ fn move_one(from: usize, to: usize, state: &mut State) {
     state[to - 1].push(item.unwrap());
 }
 
+fn move_many(num: usize, from: usize, to: usize, state: &mut State) {
+    let index = state[from - 1].len() - num;
+    let items: Vec<char> = state[from - 1].drain(index..).collect();
+    state[to - 1].extend(items);
+}
+
 fn part1() {
     let (mut state, moves) = parse_input();
 
@@ -62,14 +68,23 @@ fn part1() {
             move_one(from, to, &mut state);
         }
     }
-    // print out the last item in each stack, no newline
     for stack in state {
         print!("{}", stack.last().unwrap());
     }
     println!();
 }
 
-fn part2() {}
+fn part2() {
+    let (mut state, moves) = parse_input();
+
+    for (num, from, to) in moves {
+        move_many(num, from, to, &mut state);
+    }
+    for stack in state {
+        print!("{}", stack.last().unwrap());
+    }
+    println!();
+}
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
