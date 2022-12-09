@@ -39,32 +39,35 @@ struct Positions {
     tail_history: HashSet<(i32, i32)>,
 }
 
-fn move_head(
-    head: (i32, i32),
-    tail: (i32, i32),
-    direction: &Direction,
-) -> ((i32, i32), (i32, i32)) {
-    let new_head = match direction {
-        Direction::Up => (head.0, head.1 + 1),
-        Direction::Down => (head.0, head.1 - 1),
-        Direction::Left => (head.0 - 1, head.1),
-        Direction::Right => (head.0 + 1, head.1),
-    };
+struct LongTailPositions {
+    tail: Vec<(i32, i32)>,
+    tail_history: HashSet<(i32, i32)>,
+}
 
-    let (hx, hy) = new_head;
+fn update_tail(head: (i32, i32), tail: (i32, i32)) -> (i32, i32) {
+    let (hx, hy) = head;
     let (tx, ty) = tail;
 
     if (hx - tx).abs() <= 1 && (hy - ty).abs() <= 1 {
-        return (new_head, tail);
+        return tail;
     } else if hx == tx || hy == ty {
         let new_ty = (ty + hy) / 2;
         let new_tx = (tx + hx) / 2;
-        return (new_head, (new_tx, new_ty));
+        return (new_tx, new_ty);
     } else {
         // move tail diagonally in direction of head
         let new_tx = if hx > tx { tx + 1 } else { tx - 1 };
         let new_ty = if hy > ty { ty + 1 } else { ty - 1 };
-        return (new_head, (new_tx, new_ty));
+        return (new_tx, new_ty);
+    }
+}
+
+fn move_head(head: (i32, i32), direction: &Direction) -> (i32, i32) {
+    match direction {
+        Direction::Up => (head.0, head.1 + 1),
+        Direction::Down => (head.0, head.1 - 1),
+        Direction::Left => (head.0 - 1, head.1),
+        Direction::Right => (head.0 + 1, head.1),
     }
 }
 
@@ -77,7 +80,8 @@ fn part1(input: String) {
     };
     for (direction, distance) in directions {
         for _ in 0..distance {
-            let (new_head, new_tail) = move_head(positions.head, positions.tail, &direction);
+            let new_head = move_head(positions.head, &direction);
+            let new_tail = update_tail(new_head, positions.tail);
             positions.head = new_head;
             positions.tail = new_tail;
             positions.tail_history.insert(new_tail);
@@ -86,7 +90,43 @@ fn part1(input: String) {
     println!("{}", positions.tail_history.len());
 }
 
-fn part2(_input: String) {}
+fn print_grid(positions: &LongTailPositions, bottom_left: (i32, i32), top_right: (i32, i32)) {
+    for y in (bottom_left.1..top_right.1 + 1).rev() {
+        for x in bottom_left.0..top_right.0 + 1 {
+            // h for beginning of tail
+            if positions.tail[0] == (x, y) {
+                print!("H");
+            } else if positions.tail.contains(&(x, y)) {
+                print!("T");
+            } else {
+                print!(".");
+            }
+        }
+        println!("");
+    }
+}
+
+fn part2(input: String) {
+    let directions = parse(input);
+    let mut positions = LongTailPositions {
+        tail: vec![(0, 0); 10],
+        tail_history: HashSet::new(),
+    };
+    for (direction, distance) in directions {
+        for _ in 0..distance {
+            let new_head = move_head(positions.tail[0], &direction);
+            positions.tail[0] = new_head;
+            for i in 0..positions.tail.len() - 1 {
+                let new_tail = update_tail(positions.tail[i], positions.tail[i + 1]);
+                positions.tail[i + 1] = new_tail;
+                // print_grid(&positions, (0, 0), (10, 10));
+                // std::thread::sleep(std::time::Duration::from_millis(100));
+            }
+            positions.tail_history.insert(positions.tail[9]);
+        }
+    }
+    println!("{}", positions.tail_history.len());
+}
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
