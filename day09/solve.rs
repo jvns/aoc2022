@@ -80,11 +80,9 @@ fn part1(input: String) {
     };
     for (direction, distance) in directions {
         for _ in 0..distance {
-            let new_head = move_head(positions.head, &direction);
-            let new_tail = update_tail(new_head, positions.tail);
-            positions.head = new_head;
-            positions.tail = new_tail;
-            positions.tail_history.insert(new_tail);
+            positions.head = move_head(positions.head, &direction);
+            positions.tail = update_tail(positions.head, positions.tail);
+            positions.tail_history.insert(positions.tail);
         }
     }
     println!("{}", positions.tail_history.len());
@@ -114,11 +112,9 @@ fn part2(input: String) {
     };
     for (direction, distance) in directions {
         for _ in 0..distance {
-            let new_head = move_head(positions.tail[0], &direction);
-            positions.tail[0] = new_head;
+            positions.tail[0] = move_head(positions.tail[0], &direction);
             for i in 0..positions.tail.len() - 1 {
-                let new_tail = update_tail(positions.tail[i], positions.tail[i + 1]);
-                positions.tail[i + 1] = new_tail;
+                positions.tail[i + 1] = update_tail(positions.tail[i], positions.tail[i + 1]);
                 // print_grid(&positions, (0, 0), (10, 10));
                 // std::thread::sleep(std::time::Duration::from_millis(100));
             }
