@@ -51,7 +51,6 @@ fn move_head(positions: &mut Positions, direction: &Direction) {
 
     let (hx, hy) = positions.head;
     let (tx, ty) = positions.tail;
-    positions.tail_history.insert((tx, ty));
 
     if (hx - tx).abs() <= 1 && (hy - ty).abs() <= 1 {
         // do nothing
@@ -63,6 +62,7 @@ fn move_head(positions: &mut Positions, direction: &Direction) {
         let new_ty = if hy > ty { ty + 1 } else { ty - 1 };
         positions.tail = (new_tx, new_ty);
     }
+    positions.tail_history.insert(positions.tail);
 }
 
 fn part1(input: String) {
@@ -73,11 +73,8 @@ fn part1(input: String) {
         tail_history: HashSet::new(),
     };
     for (direction, distance) in directions {
-        println!("Moving {:?} {}", direction, distance);
         for _ in 0..distance {
             move_head(&mut positions, &direction);
-            // print head/tail
-            println!("head: {:?}, tail: {:?}", positions.head, positions.tail);
         }
     }
     println!("{}", positions.tail_history.len());
