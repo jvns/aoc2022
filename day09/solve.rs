@@ -39,30 +39,33 @@ struct Positions {
     tail_history: HashSet<(i32, i32)>,
 }
 
-fn move_head(positions: &mut Positions, direction: &Direction) {
-    let (dx, dy) = match direction {
-        Direction::Up => (0, 1),
-        Direction::Down => (0, -1),
-        Direction::Left => (-1, 0),
-        Direction::Right => (1, 0),
+fn move_head(
+    head: (i32, i32),
+    tail: (i32, i32),
+    direction: &Direction,
+) -> ((i32, i32), (i32, i32)) {
+    let new_head = match direction {
+        Direction::Up => (head.0, head.1 + 1),
+        Direction::Down => (head.0, head.1 - 1),
+        Direction::Left => (head.0 - 1, head.1),
+        Direction::Right => (head.0 + 1, head.1),
     };
-    positions.head.0 += dx;
-    positions.head.1 += dy;
 
-    let (hx, hy) = positions.head;
-    let (tx, ty) = positions.tail;
+    let (hx, hy) = new_head;
+    let (tx, ty) = tail;
 
     if (hx - tx).abs() <= 1 && (hy - ty).abs() <= 1 {
-        // do nothing
-    } else if (hx == tx || hy == ty) && (hx - tx).abs() + (hy - ty).abs() == 2 {
-        positions.tail = ((hx + tx) / 2, (hy + ty) / 2);
+        return (new_head, tail);
+    } else if hx == tx || hy == ty {
+        let new_ty = (ty + hy) / 2;
+        let new_tx = (tx + hx) / 2;
+        return (new_head, (new_tx, new_ty));
     } else {
         // move tail diagonally in direction of head
         let new_tx = if hx > tx { tx + 1 } else { tx - 1 };
         let new_ty = if hy > ty { ty + 1 } else { ty - 1 };
-        positions.tail = (new_tx, new_ty);
+        return (new_head, (new_tx, new_ty));
     }
-    positions.tail_history.insert(positions.tail);
 }
 
 fn part1(input: String) {
@@ -74,7 +77,10 @@ fn part1(input: String) {
     };
     for (direction, distance) in directions {
         for _ in 0..distance {
-            move_head(&mut positions, &direction);
+            let (new_head, new_tail) = move_head(positions.head, positions.tail, &direction);
+            positions.head = new_head;
+            positions.tail = new_tail;
+            positions.tail_history.insert(new_tail);
         }
     }
     println!("{}", positions.tail_history.len());
