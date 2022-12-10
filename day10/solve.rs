@@ -43,18 +43,46 @@ fn part1(input: String) {
             }
             (i + 1, x)
         })
-        .filter(|(count, _)| count % 40 == 20)
+        .filter(|(count, _)| count % 40 == 19)
         // print out
         .map(|(count, x)| {
             println!("{}: {}", count, x);
             (count, x)
         })
-        .map(|(x, y)| (x as i32) * (y as i32))
+        .map(|(x, y)| ((x + 1) as i32) * (y as i32))
         .sum();
     println!("Sum: {}", sum);
 }
 
-fn part2(input: String) {}
+fn part2(input: String) {
+    let mut x = 1;
+    parse(input)
+        .iter()
+        .flat_map(|instruction| match instruction {
+            Instruction::Noop => vec![Instruction::Noop],
+            Instruction::AddX(n) => vec![Instruction::Noop, Instruction::AddX(*n)],
+        })
+        .enumerate()
+        .map(|(i, instruction)| {
+            match instruction {
+                Instruction::Noop => {}
+                Instruction::AddX(n) => x += n,
+            }
+            (i + 1, x)
+        })
+        .for_each(|(count, x)| {
+            if count % 40 == 0 {
+                // newline
+                println!();
+            }
+            let difference = (x - (count % 40) as i32).abs();
+            if difference <= 1 {
+                print!("#");
+            } else {
+                print!(".");
+            }
+        });
+}
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
