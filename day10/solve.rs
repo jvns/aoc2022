@@ -6,6 +6,7 @@ fn read_stdin() -> String {
     return input;
 }
 
+#[derive(Debug, Clone)]
 enum Instruction {
     Noop,
     AddX(i32),
@@ -26,40 +27,31 @@ fn parse(input: String) -> Vec<Instruction> {
         .collect()
 }
 
-fn get_states(instructions: &Vec<Instruction>) -> impl Iterator<Item = (usize, i32)> + '_ {
-    let mut iter = instructions.iter();
-    let mut instruction_cycle = 0;
-    let mut instruction_count = 0;
-    let mut current_instruction: Option<&Instruction> = None;
-    let mut x = 1;
-    std::iter::from_fn(move || {
-        instruction_count += 1;
-        match (current_instruction, instruction_cycle) {
-            (Some(Instruction::AddX(n)), 0) => {
-                instruction_cycle = 1;
-            }
-            _ => {
-                instruction_cycle = 0;
-                current_instruction = iter.next();
-            }
-        }
-        match (current_instruction, instruction_cycle) {
-            (Some(Instruction::AddX(_)), 0) => Some((instruction_count, x)),
-            (Some(Instruction::AddX(delta)), 1) => {
-                x += delta;
-                Some((instruction_count, x))
-            }
-            (Some(Instruction::Noop), _) => Some((instruction_count, x)),
-            _ => None,
-        }
-    })
-}
 fn part1(input: String) {
-    let instructions = parse(input);
-    let states = get_states(&instructions);
-    for (instruction_count, x) in states {
-        println!("{}: {}", instruction_count, x);
-    }
+    let mut x = 1;
+    let sum: i32 = parse(input)
+        .iter()
+        .flat_map(|instruction| match instruction {
+            Instruction::Noop => vec![Instruction::Noop],
+            Instruction::AddX(n) => vec![Instruction::Noop, Instruction::AddX(*n)],
+        })
+        .enumerate()
+        .map(|(i, instruction)| {
+            match instruction {
+                Instruction::Noop => {}
+                Instruction::AddX(n) => x += n,
+            }
+            (i + 1, x)
+        })
+        .filter(|(count, _)| count % 40 == 20)
+        // print out
+        .map(|(count, x)| {
+            println!("{}: {}", count, x);
+            (count, x)
+        })
+        .map(|(x, y)| (x as i32) * (y as i32))
+        .sum();
+    println!("Sum: {}", sum);
 }
 
 fn part2(input: String) {}
