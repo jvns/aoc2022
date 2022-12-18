@@ -1,9 +1,8 @@
 use std::cmp::Ordering;
 use std::fmt::Display;
-use std::io::Error;
 use std::io::Read;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 struct Item {
     int: Option<i32>,
     list: Option<Vec<Item>>,
@@ -159,7 +158,33 @@ fn part1(input: String) {
     println!("{}", num_greater);
 }
 
-fn part2(_input: String) {
+fn part2(input: String) {
+    let mut all: Vec<Item> = input
+        .split("\n")
+        .filter(|s| *s != "")
+        .map(|s| parse(s.to_string()))
+        .collect();
+
+    all.push(parse("[[2]]".to_string()));
+    all.push(parse("[[6]]".to_string()));
+
+    // sort
+    all.sort_by(|a, b| cmp(a, b));
+
+    // find position of [[2]]
+    let two_pos = all
+        .iter()
+        .position(|item| item == &parse("[[2]]".to_string()))
+        .unwrap()
+        + 1;
+
+    let six_pos = all
+        .iter()
+        .position(|item| item == &parse("[[6]]".to_string()))
+        .unwrap()
+        + 1;
+
+    println!("{}", two_pos * six_pos);
     // todo
 }
 
