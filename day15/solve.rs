@@ -8,35 +8,13 @@ fn read_stdin() -> String {
 
 #[derive(Debug, Copy, Clone)]
 struct Sensor {
-    sensor_x: i32,
-    sensor_y: i32,
-    beacon_x: i32,
-    beacon_y: i32,
+    sensor_x: i64,
+    sensor_y: i64,
+    beacon_x: i64,
+    beacon_y: i64,
 }
 
-/*
-
-...x....xS..xx.x
-....x...xx..x.x..
-.....B..xx.x.x.
-......x...xxx..
-.......xxxxx......
-........xxx.......
-.........x........
-
-
-s = (0,0)
-B = (-4, 2)
-
-dist = 6
-
-range = (-2, 2)
-
-y = 4
-
-*/
-
-fn voronoi_range(sensor: &Sensor, y: i32) -> Option<(i32, i32)> {
+fn voronoi_range(sensor: &Sensor, y: i64) -> Option<(i64, i64)> {
     let min_beacon_distance =
         (sensor.beacon_x - sensor.sensor_x).abs() + (sensor.beacon_y - sensor.sensor_y).abs();
 
@@ -101,30 +79,31 @@ fn parse(input: String) -> Vec<Sensor> {
         .collect()
 }
 
+fn find_gap(mut ranges: Vec<(i64, i64)>) -> Option<i64> {
+    ranges.sort_by(|a, b| a.0.cmp(&b.0));
+    let mut max = ranges[0].1;
+    for range in ranges {
+        if range.0 > max {
+            return Some(max + 1);
+        } else {
+            max = max.max(range.1);
+        }
+    }
+    return None;
+}
+
 fn part1(input: String) {
-    // 4411859: too low
-    // 4411858: even lower
     let sensors = parse(input);
 
     let y = 2_000_000;
 
-    let ranges = sensors
-        .iter()
-        .map(|sensor| voronoi_range(sensor, y))
-        .filter(|range| range.is_some())
-        .map(|range| range.unwrap())
-        .collect::<Vec<(i32, i32)>>();
-
-    // print out the ranges
-    ranges
-        .iter()
-        .for_each(|range| println!("{} - {}", range.0, range.1));
+    let ranges = get_ranges(&sensors, y);
 
     let xs = sensors
         .iter()
         .filter(|sensor| sensor.beacon_y == y)
         .map(|sensor| sensor.beacon_x)
-        .collect::<Vec<i32>>();
+        .collect::<Vec<i64>>();
 
     let min_x = sensors
         .iter()
@@ -152,7 +131,30 @@ fn part1(input: String) {
     // find all beacons that are closer to some sens
 }
 
-fn part2(input: String) {}
+fn get_ranges(sensors: &Vec<Sensor>, y: i64) -> Vec<(i64, i64)> {
+    sensors
+        .iter()
+        .map(|sensor| voronoi_range(sensor, y))
+        .filter(|range| range.is_some())
+        .map(|range| range.unwrap())
+        .collect::<Vec<(i64, i64)>>()
+}
+
+fn part2(input: String) {
+    let sensors = parse(input);
+
+    // find a y that has a gap
+    for y in 0.. {
+        //
+        let ranges = get_ranges(&sensors, y);
+        if let Some(x) = find_gap(ranges) {
+            println!("{}", 4000000 * x + y);
+            break;
+        }
+    }
+
+    // find all beacons that are closer to some sens
+}
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
