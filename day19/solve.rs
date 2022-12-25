@@ -1,4 +1,5 @@
 use std::io::Read;
+/* this code does not really work but it did get me the right answer */
 
 fn read_stdin() -> String {
     let mut input = String::new();
