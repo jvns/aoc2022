@@ -153,23 +153,23 @@ fn next_game_states(
         }
         next_game_states.push(next_game_state);
     }
-    if next_game_states.len() > 1_000_000 {
+    if next_game_states.len() > 4_000_000 {
         // make sure there are some geodes
         let has_geodes = next_game_states.iter().any(|s| s.robots[3] > 0);
         if has_geodes {
             next_game_states.sort_by(|a, b| b.robots[3].cmp(&a.robots[3]));
-            next_game_states.truncate(next_game_states.len() / 10);
+            next_game_states.truncate(next_game_states.len() / 30);
         }
         let has_obsidian = next_game_states.iter().any(|s| s.robots[2] > 0);
         if has_obsidian {
             next_game_states.sort_by(|a, b| b.robots[2].cmp(&a.robots[2]));
-            next_game_states.truncate(next_game_states.len() / 20);
+            next_game_states.truncate(next_game_states.len() / 30);
         }
     }
     next_game_states
 }
 
-fn max_geode_num(blueprint: &Blueprint) -> u32 {
+fn max_geode_num(blueprint: &Blueprint, iterations: usize) -> u32 {
     let mut game_state = GameState {
         resources: vec![0, 0, 0, 0],
         robots: vec![0, 0, 0, 0],
@@ -177,9 +177,9 @@ fn max_geode_num(blueprint: &Blueprint) -> u32 {
     game_state.robots[Resource::Ore as usize] = 1;
     let mut game_states = vec![game_state];
     // run 24 iterations of the game
-    for i in 0..24 {
+    for i in 0..iterations {
         game_states = next_game_states(blueprint, &game_states, i);
-        println!("generation: {}, game states: {}", i, game_states.len());
+        //println!("generation: {}, game states: {}", i, game_states.len());
     }
     // print the max number of geode resources
     let max_geode = game_states
@@ -197,12 +197,21 @@ fn part1(input: String) {
     let score = blueprints
         .iter()
         .enumerate()
-        .map(|(i, blueprint)| ((i + 1) as u32) * max_geode_num(blueprint))
+        .map(|(i, blueprint)| ((i + 1) as u32) * max_geode_num(blueprint, 24))
         .sum::<u32>();
     println!("{}", score);
 }
 
-fn part2(input: String) {}
+fn part2(input: String) {
+    let blueprints = parse(&input);
+    let score = blueprints
+        .iter()
+        .take(3)
+        .map(|(blueprint)| max_geode_num(blueprint, 32))
+        .product::<u32>();
+
+    println!("{}", score);
+}
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
